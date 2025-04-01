@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>RogueSignal.io</title>
+    <link rel="icon" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/assets/favicon.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/css/over_demo.min.css" id="page_style">
+    <script src="scripts/plugins/momentum.js" crossorigin="anonymous"></script>
+<!--     <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimerWorker.min.js"></script>
+ -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/myonov/momentum@latest/momentum.js"></script>     -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.0/phaser.min.js" crossorigin="anonymous"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overGrowl/over_growl.min.js" ></script>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@v0.2.3/scripts/over_demo.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@v0.2.3/scripts/over_base.min.js"></script> -->
+    <script src="https://roguesignalio.github.io/overBase/scripts/over_demo.js"></script>
+    <script src="https://roguesignalio.github.io/overBase/scripts/over_base.js"></script>
+    <script src="scripts/over_audio.js" crossorigin="anonymous"></script>
+    <script src="scripts/plugins/oaudio_bank_visualize.js" crossorigin="anonymous"></script>
+    <!-- For local development only -->
+    <!-- <link rel="stylesheet" href="css/over_demo.css" id="page_style"> -->
+    <!-- <script src="scripts/over_demo.js" crossorigin="anonymous"></script> -->
+    <!-- <script src="scripts/over_base.js" crossorigin="anonymous"></script> -->
+</head>
+<body>
+<div id="demo"></div>
+<div id="demo_visual"></div>
+<div id="audioTag"></div>
+<script>  
+  window.onload = function() {
+    window.ob = new OverAudio({
+        width: 1 ,
+        height: 1,
+        background: '0xFFFF00',
+        transparent: false,
+        preload: {
+          'cranker': 'cranker.mp3',
+          'bampf': ['bampf.mp3','main'],
+          'bell': ['bell.mp3','main',{ volume: 3 }],
+        },
+        after_init: function() {
+          this.sound_load('koto1','koto1.mp3') // You can do this, but you have to use sound_ready(key) before using...
+          // Add loads into queue and then run queue
+          this.sound_queue('foghorn','foghorn.mp3')
+          this.sound_queue('spinner','spinner.mp3')
+          this.sound_queue('baby-mandala','baby-mandala-nepalese-drill-music-169039.mp3','music1')
+          this.sound_queue('cinematic-of-emotions_11','cinematic-of-emotions-intro-11-272366.mp3','music')
+          this.sound_queue('epic-cinematic-trailer','epic-cinematic-trailer-30s-288130.mp3','music')
+          this.sound_queue('exciting-news-rock','exciting-news-rock-162214.mp3','music')
+          this.sound_queue('jogging','jogging-30sec-286797.mp3','music')
+          this.sound_queue('loop_guitar1','loop_guitar1.mp3','loops')
+          this.sound_queue('loop_asian','loop_asian.mp3','loops')
+          this.sound_queue_load(function(){ 
+            console.log('Loaded Queue'); 
+            this.jukebox_bank_add('music')
+            load_demo(); 
+            window.cleanup = function() {
+              this.audio_stop()
+            }.bind(this)
+            window.audio_toggle = function() {
+              this.audio_mute_toggle()
+            }.bind(this)
+          })
+        }
+    })
+  }
+
+
+  function load_demo() {
+    over_demo_panel('overAudio',0.1,'overAudio',
+      [
+        'overAudio provides a consolidated audio playback library for scripts based on PhaserJS v3.8+.',
+        'Simple interface to audio via tags for easy access for playback.',
+        'Tags can interrupt/override playback or can trigger a new audio instance (overlapping sounds).',
+        'Supports named channels, which can act as queues or stacks.',
+        'Supports a background Jukebox option to provide endless play from playlist.',
+        'Jukebox can also support interrupt and resume after interrupt audio plays.',
+        'Seeking, sub loops, and more features supported.',
+        'Built-in drum pad plugin.',
+        'Integrates easily into other Rogue Signal "over" libraries',
+        'A smaller audio library is available via overSound',
+        'See overPlay for a full media playback library that uses overAudio.',
+        'All audio sourced from Pixabay.com',
+        'This demo also uses <a href="https://github.com/RogueSignalio/overBase" target="_blank">overGrowl</a>.',
+      ],
+      { 
+        'Snd Single': 'demos.simple_single()', 
+        'Snd Overlay': 'demos.simple_overlay()',
+        'Snd Loop': 'demos.simple_loop()',
+        '5 count loop': 'demos.count_loop()',
+        'Skip Forward': 'demos.simple_skip()',
+        'Random x3': 'demos.bank_random_3()',
+        'Random Loop': 'demos.bank_random()',
+        // 'Stack Queue': 'window.odemo_growler.thinking("I am a different kind of growl.")',
+        'Jukebox': 'demos.play_jukebox()',
+        'Interrupt Jukebox': 'demos.interrupt_jukebox()',
+        'Drum Pad': 'demos.drum_pads()',
+      }
+    )    
+  }
+
+  var demos = {
+    simple_single: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Clicking repeatedly restarts the sound.<li>variance: 100") 
+      ob.sound_play('bell',{ variance: 100 })
+    },
+    simple_overlay: ()=> { 
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Clicking repeatedly starts a new sound over the previous instances.<li>variance: 100") 
+      ob.sound_play('bell',{ clone: true, variance: 100 })
+    },
+    simple_loop: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Click play on loop.<li> Click again, stops.<li>variance:100, retrigger:'stop', loop:true") 
+      ob.sound_play('foghorn',{ variance: 100, retrigger: 'stop', loop: true })
+    },
+    count_loop: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Click play on loop for 5 times.<li>Play count will calculate variance each play back.<li>Click again, stops.<li>variance:600, retrigger:'stop', count:5") 
+      ob.sound_play('bampf',{ variance: 600, retrigger: 'stop', count: 5 })
+    },
+    simple_skip: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info(`<br>
+        <li>Clicks seek to the next 5 seconds of song (repeats after end).
+        <li>Click the 🛑 to end.
+        <li>Baby Mandala | Nepalese Drill Music | Artist prazkhanal (via pixabay)
+      `)
+      if (window.skip_pos == null) { window.skip_pos = 0 }
+      else if ( window.skip_pos >= ob.sound_length('baby-mandala')) { window.skip_pos = 0}
+      else { window.skip_pos += 5; }
+
+      ob.sound_play('baby-mandala',{ seek_to: window.skip_pos , loop: true, retrigger: 'seek' })
+    },
+    bank_random_3: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Click to play 3 random bank sounds.<li><li>Click again restarts.<li>Delay random: 100ms-400ms") 
+      ob.bank_random('main',3,100,400)      
+    },
+    bank_random: ()=> {
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Click play bank on random, no end.<li>Click again, stops.<li>Delay random: 100ms-400ms") 
+      ob.bank_random('main','loop',100,400)      
+    },
+    play_jukebox: () => {
+      ob.jukebox_play()
+    },
+    interrupt_jukebox: () => {
+      ob.jukebox_overplay('loop_guitar1')
+    },
+    drum_pads: () => {
+      odemo_logo_off()
+      odemo_growler.clearGrowls() 
+      odemo_growler.info(`<br>
+        <li> Creates two sound banks with visual pads.
+        <li> Pad 1, options => loop:false, detune:50
+        <li> Pad 2, options => loop:true, detune:50, fade:200, retrigger:'stop'
+      `)
+      ob.render_bank("main",3,3)
+      ob.render_bank("loops",1,1)
+    }
+  }
+
+// function createSilentAudio (time, freq = 44100){
+//   const length = time * freq;
+//   const AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext;
+//   if(! AudioContext ){
+//     console.log("No Audio Context")
+//   }
+//   const context = new AudioContext();
+//   const audioFile = context.createBuffer(1, length, freq);
+//   return URL.createObjectURL(bufferToWave(audioFile, length));
+// }
+
+// function bufferToWave(abuffer, len) {
+//   let numOfChan = abuffer.numberOfChannels,
+//     length = len * numOfChan * 2 + 44,
+//     buffer = new ArrayBuffer(length),
+//     view = new DataView(buffer),
+//     channels = [], i, sample,
+//     offset = 0,
+//     pos = 0;
+
+//   // write WAVE header
+//   setUint32(0x46464952);
+//   setUint32(length - 8);
+//   setUint32(0x45564157);
+
+//   setUint32(0x20746d66);
+//   setUint32(16);
+//   setUint16(1);
+//   setUint16(numOfChan);
+//   setUint32(abuffer.sampleRate);
+//   setUint32(abuffer.sampleRate * 2 * numOfChan);
+//   setUint16(numOfChan * 2);
+//   setUint16(16);
+
+//   setUint32(0x61746164);
+//   setUint32(length - pos - 4);
+
+//   // write interleaved data
+//   for(i = 0; i < abuffer.numberOfChannels; i++)
+//     channels.push(abuffer.getChannelData(i));
+
+//   while(pos < length) {
+//     for(i = 0; i < numOfChan; i++) {             // interleave channels
+//       sample = Math.max(-1, Math.min(1, channels[i][offset])); // clamp
+//       sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767)|0; // scale to 16-bit signed int
+//       view.setInt16(pos, sample, true);          // write 16-bit sample
+//       pos += 2;
+//     }
+//     offset++                                     // next source sample
+//   }
+
+//   // create Blob
+//   return new Blob([buffer], {type: "audio/wav"});
+
+//   function setUint16(data) {
+//     view.setUint16(pos, data, true);
+//     pos += 2;
+//   }
+
+//   function setUint32(data) {
+//     view.setUint32(pos, data, true);
+//     pos += 4;
+//   }
+// }
+
+// // let ss = createSilentAudio(1000)
+// // // Set the source of an audio element to the silent audio blob
+// // document.getElementById('audioTag').src = URL.createObjectURL(ss);
+
+// // // Start playing the audio
+// // document.getElementById('audioTag').play();
+
+// // module.exports = { createSilentAudio };
+
+// const context = new AudioContext();
+// const oscillator = context.createOscillator();
+// oscillator.type = 'sine';
+// oscillator.frequency.setValueAtTime(300, context.currentTime); // Set frequency to 0 to create silence
+// oscillator.connect(context.destination);
+// oscillator.start();
+
+// const workerCode = `
+// // When the worker receives a message...
+//     onmessage = function(e) {
+//         // ...if that message is 'start'
+//         if (e.data === 'start') {
+//             // ...set an interval to send a heartbeat every minute
+//             setInterval(() => {
+//                 // Fetch a heartbeat from the server
+//                 fetch('https://roguesignalio.github.io/overPuzzle/assets/favicon.png')
+//                 .then(response => {
+//                     // If the response isn't okay, throw an error
+//                     if (!response.ok) {
+//                         throw new Error('Network response was not ok');
+//                     }
+//                     return response; //.json(); 
+//                 })
+//                 .then(data => {
+//                     // Log the received heartbeat
+//                     console.log('Heartbeat received:', Date(), data);
+//                 })
+//                 .catch(error => {
+//                     // If there's an error, log it
+//                     console.error('Fetch error:', error.message);
+//                 });
+//             }, 6000);
+//         }
+//     };
+// `;
+
+// // Create a new Blob object from the worker code
+// const blob = new Blob([workerCode], { type: 'application/javascript' });
+
+// // Create a new Web Worker from the blob URL
+// const worker = new Worker(URL.createObjectURL(blob));
+
+// // Post a 'start' message to the worker to begin the heartbeat
+// worker.postMessage('start');
+
+</script>
+</body>
+</html>
