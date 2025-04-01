@@ -14,7 +14,7 @@ See README
 // TODO:
 //
 
-class OverAudio extends OverBase {
+class OverAudio extends OverPhBase {
   constructor (config={},ph_config={},engine=null) {
     let temp_config = {
       audio_on: true,
