@@ -33,6 +33,7 @@ class OverAudio extends OverPhBase {
     this.oa_banks = {}
     this.oa_sounds = {}
     this.oa_volume_offset = {}
+    this.oa_volume_reset_fade_duration = 2000
     this.oa_jukebox_position = -1
     this.oa_jukebox_master_list = []
     this.oa_jukebox_play_list = []
@@ -96,7 +97,7 @@ class OverAudio extends OverPhBase {
     // for (var key in this.videos){
     //   this.videos[key].setVolume(vol)
     // };
-    this.audio_restore_fix(old_vol)
+    this.audio_restore_fix()
     return this.engine.sound.volume;
   }
 
@@ -106,7 +107,7 @@ class OverAudio extends OverPhBase {
     this.audio_volume(this.oa_volume_current + inc)
   }
 
-  audio_restore_fix(old_vol) {
+  audio_restore_fix() {
     Object.keys(this.oa_sounds).forEach((k) => {
       let snd = this.oa_sounds[k].sound
       // console.log(k,snd)
@@ -114,7 +115,7 @@ class OverAudio extends OverPhBase {
         if (snd.fader) { snd.fader.stop(); }
         snd.fading = 0
         snd.fader = null
-        this.sound_fadein(k,500,0,old_vol)
+        this.sound_fadein(k,this.oa_volume_reset_fade_duration,0,snd.volume)
       }
     })    
   }
@@ -134,7 +135,7 @@ class OverAudio extends OverPhBase {
   audio_mute() { this.sound.setMute(true); }
   audio_unmute() { 
     this.sound.setMute(false); 
-    this.audio_restore_fix(this.oa_volume_current);
+    this.audio_restore_fix();
   }
   audio_pause() { ob.sound.pauseAll() }
   audio_resume() { ob.sound.resumeAll() }
