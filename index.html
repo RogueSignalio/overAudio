@@ -6,26 +6,21 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>RogueSignal.io</title>
     <link rel="icon" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/assets/favicon.png">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/css/over_demo.min.css" id="page_style">
-    <script src="scripts/plugins/momentum.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/css/over_demo.min.css" id="demo_style">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.0/phaser.min.js" crossorigin="anonymous"></script>
 <!--     <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimer.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimerWorker.min.js"></script>
  -->
     <!-- <script src="https://cdn.jsdelivr.net/gh/myonov/momentum@latest/momentum.js"></script>     -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.0/phaser.min.js" crossorigin="anonymous"></script> 
+<!--     <script src="scripts/plugins/momentum.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overGrowl/over_growl.min.js" ></script>
-    <!-- <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@v0.2.3/scripts/over_demo.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@v0.2.3/scripts/over_base.min.js"></script> -->
-    <script src="https://roguesignalio.github.io/overBase/scripts/over_demo.js"></script>
-    <script src="https://roguesignalio.github.io/overBase/scripts/over_base.js"></script>
-    <script src="https://roguesignalio.github.io/overBase/scripts/over_ph_base.js"></script>
+ -->    
+    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overGrowl@latest/over_growl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_demo.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_base.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_ph_base.min.js"></script>
     <script src="scripts/over_audio.js" crossorigin="anonymous"></script>
     <script src="scripts/plugins/oaudio_bank_visualize.js" crossorigin="anonymous"></script>
-    <!-- For local development only -->
-    <!-- <link rel="stylesheet" href="css/over_demo.css" id="page_style"> -->
-    <!-- <script src="scripts/over_demo.js" crossorigin="anonymous"></script> -->
-    <!-- <script src="scripts/over_base.js" crossorigin="anonymous"></script> -->
 </head>
 <body>
 <div id="demo"></div>
@@ -34,39 +29,39 @@
 <script>  
   window.onload = function() {
     window.ob = new OverAudio({
-        width: 1 ,
-        height: 1,
-        background: '0xFFFF00',
-        transparent: false,
-        preload: {
-          'cranker': 'cranker.mp3',
-          'bampf': ['bampf.mp3','main'],
-          'bell': ['bell.mp3','main',{ volume: 3 }],
-        },
-        after_init: function() {
-          this.sound_load('koto1','koto1.mp3') // You can do this, but you have to use sound_ready(key) before using...
-          // Add loads into queue and then run queue
-          this.sound_queue('foghorn','foghorn.mp3')
-          this.sound_queue('spinner','spinner.mp3')
-          this.sound_queue('baby-mandala','baby-mandala-nepalese-drill-music-169039.mp3','music1')
-          this.sound_queue('cinematic-of-emotions_11','cinematic-of-emotions-intro-11-272366.mp3','music')
-          this.sound_queue('epic-cinematic-trailer','epic-cinematic-trailer-30s-288130.mp3','music')
-          this.sound_queue('exciting-news-rock','exciting-news-rock-162214.mp3','music')
-          this.sound_queue('jogging','jogging-30sec-286797.mp3','music')
-          this.sound_queue('loop_guitar1','loop_guitar1.mp3','loops')
-          this.sound_queue('loop_asian','loop_asian.mp3','loops')
-          this.sound_queue_load(function(){ 
-            console.log('Loaded Queue'); 
-            this.jukebox_bank_add('music')
-            load_demo(); 
-            window.cleanup = function() {
-              this.audio_stop()
-            }.bind(this)
-            window.audio_toggle = function() {
-              this.audio_mute_toggle()
-            }.bind(this)
-          })
-        }
+      width: 1 ,
+      height: 1,
+      background: '0xFFFF00',
+      transparent: false,
+      preload: {
+        'cranker': 'cranker.mp3',
+        'bampf': ['bampf.mp3','main'],
+        'bell': ['bell.mp3','main',{ volume: 3 }],
+      },
+      after_init: function() {
+        this.sound_load('koto1','koto1.mp3') // You can do this, but you have to use sound_ready(key) before using...
+        // Add loads into queue and then run queue
+        this.sound_queue('foghorn','foghorn.mp3')
+        this.sound_queue('spinner','spinner.mp3')
+        this.sound_queue('baby-mandala','baby-mandala-nepalese-drill-music-169039.mp3','music1')
+        this.sound_queue('cinematic-of-emotions_11','cinematic-of-emotions-intro-11-272366.mp3','music')
+        this.sound_queue('epic-cinematic-trailer','epic-cinematic-trailer-30s-288130.mp3','music')
+        this.sound_queue('exciting-news-rock','exciting-news-rock-162214.mp3','music')
+        this.sound_queue('jogging','jogging-30sec-286797.mp3','music')
+        this.sound_queue('loop_guitar1','loop_guitar1.mp3','loops')
+        this.sound_queue('loop_asian','loop_asian.mp3','loops')
+        this.sound_queue_load(function(){ 
+          console.log('Loaded Queue'); 
+          this.jukebox_bank_add('music')
+          load_demo(); 
+          window.cleanup = function() {
+            this.audio_stop()
+          }.bind(this)
+          window.audio_toggle = function() {
+            this.audio_mute_toggle()
+          }.bind(this)
+        })
+      }
     })
   }
 
@@ -83,7 +78,7 @@
         'Seeking, sub loops, and more features supported.',
         'Built-in drum pad plugin.',
         'Integrates easily into other Rogue Signal "over" libraries',
-        'A smaller audio library is available via overSound',
+        // 'A smaller audio library is available via overSound',
         'See overPlay for a full media playback library that uses overAudio.',
         'All audio sourced from Pixabay.com',
         'This demo also uses <a href="https://github.com/RogueSignalio/overBase" target="_blank">overGrowl</a>.',
@@ -100,11 +95,21 @@
         'Jukebox': 'demos.play_jukebox()',
         'Interrupt Jukebox': 'demos.interrupt_jukebox()',
         'Drum Pad': 'demos.drum_pads()',
+        'Vol Up': 'demos.volume_up()',
+        'Vol Down': 'demos.volume_down()',
+        'Vol 50%': 'demos.volume_fifty()',
+        'Vol 50%': 'demos.volume_fifty()',
+        'Vol Min': 'demos.volume(0)',
+        'Vol Max': 'demos.volume(1)',
       }
     )    
   }
 
   var demos = {
+    volume: (v)=> { ob.audio_volume(v); },
+    volume_fifty: ()=> { ob.audio_volume(50,false); },
+    volume_up: ()=> {  ob.audio_volume_inc(10); },
+    volume_down: ()=> {  ob.audio_volume_inc(-10); },
     simple_single: ()=> {
       odemo_growler.clearGrowls() 
       odemo_growler.info("<br><li>Clicking repeatedly restarts the sound.<li>variance: 100") 
@@ -166,6 +171,15 @@
       ob.render_bank("loops",1,1)
     }
   }
+
+//============================================================================================================
+// Wildly useless (it turns out) to find a way to keep the audio running well when tab/window loses focus.
+// Turns out, the Phaser engine is doing something internally to make the situtation even worse ... sooo...
+// overAudio will likely change to using Howler.js or go straight to audio interfaces so these tricks might
+// have a chance of working.  So... ignore all of the below.  Retained here for now just for reference.
+//============================================================================================================
+// The below also contains preliminary code for audio visualization stuff.
+//============================================================================================================
 
 // function createSilentAudio (time, freq = 44100){
 //   const length = time * freq;

@@ -81,22 +81,48 @@ class OverAudio extends OverPhBase {
   }
 
   // Set volume from 0 to 1
-  audio_volume(vol=0.5) {
-    if (vol > 1) { vol = vol / 100}
-    if (vol < 0) { vol = 0 }
-
-    if (vol >= 0) {
-      this.engine.sound.volume = this.this.oa_volume_current = vol
-      // for (var key in this.videos){
-      //   this.videos[key].setVolume(vol)
-      // };
+  audio_volume(vol=0.5,percent=true) {
+    let old_vol = this.oa_volume_current
+    // A very imperfect way of catching 0-100 vol values.
+    if ( (!percent) || (Number.isInteger(vol) && (vol != 1) && (vol != 0)) ) { 
+      console.log('volume from %: ' + old_vol + ' => '+ vol)
+      vol = vol / 100; 
     }
+    if (vol > 1) { vol = 1 }
+    if (vol < 0) { vol = 0 }
+    vol = Math.round((vol + Number.EPSILON)*100)/100
+    console.log('volume: ' + old_vol + ' => '+ vol)
+    this.engine.sound.volume = this.oa_volume_current = vol
+    // for (var key in this.videos){
+    //   this.videos[key].setVolume(vol)
+    // };
+    this.audio_restore_fix(old_vol)
     return this.engine.sound.volume;
+  }
+
+  audio_volume_inc(inc=0) {
+    if ((inc > 1) || (inc < 1)) { inc = inc / 100}
+    inc = Math.round((inc + Number.EPSILON)*100)/100
+    this.audio_volume(this.oa_volume_current + inc)
+  }
+
+  audio_restore_fix(old_vol) {
+    Object.keys(this.oa_sounds).forEach((k) => {
+      let snd = this.oa_sounds[k].sound
+      // console.log(k,snd)
+      if (snd.fading == 1) { 
+        if (snd.fader) { snd.fader.stop(); }
+        snd.fading = 0
+        snd.fader = null
+        this.sound_fadein(k,500,0,old_vol)
+      }
+    })    
   }
 
   audio_muted() {
     return this.sound.mute
   }
+
   audio_mute_toggle() {
     if (this.audio_muted()) {
       this.audio_unmute()
@@ -104,8 +130,12 @@ class OverAudio extends OverPhBase {
       this.audio_mute()
     }
   }
+
   audio_mute() { this.sound.setMute(true); }
-  audio_unmute() { this.sound.setMute(false); }
+  audio_unmute() { 
+    this.sound.setMute(false); 
+    this.audio_restore_fix(this.oa_volume_current);
+  }
   audio_pause() { ob.sound.pauseAll() }
   audio_resume() { ob.sound.resumeAll() }
 
@@ -154,6 +184,9 @@ class OverAudio extends OverPhBase {
     if (!this.bank_object(bank)) { this.bank_create(bank) }
     let sound = this.sound.add(key)
     sound.options = options
+    sound.fading = 0
+    sound.fader = null
+// console.log(sound)
     this.oa_sounds[key] = { key: key, sound: sound }
     this.bank_add(bank,this.sound_data(key))
   }
@@ -187,24 +220,29 @@ class OverAudio extends OverPhBase {
     this.oa_sounds[key].sound.once(event, func.bind(this));
   }
 
-  sound_fadein(key,duration=500,delay=10) {
+  sound_fadein(key,duration=500,delay=10,from=0) {
     let as = this.sound_object(key)
     if (!as) { return null }
-    as.setVolume(0)
+    as.setVolume(from)
     as.isPaused ? this.sound_resume(as.key) : this.sound_play(as.key)
-
-    this.audio_scene().tweens.add({
+    as.fading = 1
+    as.fader = this.audio_scene().tweens.add({
         targets:  as,
         delay: delay,
         volume:   this.sound.volume,
-        duration: duration
+        duration: duration,
+        onComplete: function (tw,targets){
+          targets[0].fading = 0
+          targets[0].fader = null
+        }
     });
   }
 
   sound_fadeout(key,duration=500,delay=0,pause=false) {
     let as = this.sound_object(key)
     if (!as) { return null }
-    this.audio_scene().tweens.add({
+    as.fading = -1
+    as.fader = this.audio_scene().tweens.add({
         targets:  as,
         volume:   0,
         delay: delay,
@@ -216,6 +254,8 @@ class OverAudio extends OverPhBase {
           console.log('Pause: ' + pause) 
           if (pause == true) { this.sound_pause(k) }
           else { this.sound_stop(k) }
+          targets[0].fading = 0
+          targets[0].fader = null
         },
     });
   }
@@ -378,11 +418,11 @@ class OverAudio extends OverPhBase {
     item.sound.once("complete", function (a) { 
       bs._counter += 1
       let counter_left = bs._count - bs._counter
-      console.log('complete!',Date())
+      // console.log('complete!',Date())
       document.title = performance.now()
       if (bs._forever == true) {
         setTimeout(function() {
-        console.log('timeout complete!',Date())
+        // console.log('timeout complete!',Date())
           this.bank_random(key,'loop',delay_min,delay_max,true);
         }.bind(this),delay)
       } else if ((bs._counter < bs._count) && (counter_left >= 0)) {
