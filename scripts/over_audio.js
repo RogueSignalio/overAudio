@@ -13,7 +13,7 @@ See README
 ===========================================================================*/
 // TODO:
 //
-var version = '0.1.3'
+var version = '0.1.2'
 class OverAudio extends OverPhBase {
   constructor (config={},ph_config={},engine=null) {
     let temp_config = {
