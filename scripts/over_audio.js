@@ -13,7 +13,7 @@ See README
 ===========================================================================*/
 // TODO:
 //
-
+var version = '0.1.3'
 class OverAudio extends OverPhBase {
   constructor (config={},ph_config={},engine=null) {
     let temp_config = {
@@ -21,6 +21,7 @@ class OverAudio extends OverPhBase {
       volume: 0.5,
       preload: {},
       pause_on_blur: true,
+      scene_name: 'oaudio_scene',
       audio_path: 'assets/audio/',
       after_init: ()=>{},
       ...config
@@ -72,7 +73,7 @@ class OverAudio extends OverPhBase {
       this.oa_audio_scene.create = ()=> {
         this.config.after_init.call(this)
       } 
-      this.engine.scene.add('audio_scene', this.oa_audio_scene, true, {} );
+      this.engine.scene.add(this.config.scene_name, this.oa_audio_scene, true, {} );
     }
     return this.oa_audio_scene
   }
@@ -85,7 +86,8 @@ class OverAudio extends OverPhBase {
   audio_volume(vol=0.5,percent=true) {
     let old_vol = this.oa_volume_current
     // A very imperfect way of catching 0-100 vol values.
-    if ( (!percent) || (Number.isInteger(vol) && (vol != 1) && (vol != 0)) ) { 
+    // if ( (!percent) || (Number.isInteger(vol) && (vol != 1) && (vol != 0)) ) { 
+    if (!percent) { //|| (Number.isInteger(vol) && (vol != 1) && (vol != 0)) ) { 
       console.log('volume from %: ' + old_vol + ' => '+ vol)
       vol = vol / 100; 
     }
@@ -252,7 +254,7 @@ class OverAudio extends OverPhBase {
         onComplete: function (tw,targets){
           let k = targets[0].key
           document.title = Date();
-          console.log('Pause: ' + pause) 
+          // console.log('Pause: ' + pause) 
           if (pause == true) { this.sound_pause(k) }
           else { this.sound_stop(k) }
           targets[0].fading = 0
@@ -452,6 +454,7 @@ class OverAudio extends OverPhBase {
   // Jukebox Methods
   //===============================================    
   jukebox_sound_add(key) {
+    if (this.oa_jukebox_master_list.includes(k)) { break; }    
     this.oa_jukebox_master_list.push(key)
   }
 
@@ -474,6 +477,8 @@ class OverAudio extends OverPhBase {
   }
 
   jukebox_play(shuffle=false) {
+    if (this.oa_jukebox_playing = true) { return true; }
+
     if (this.oa_jukebox_timer) { clearTimeout(this.oa_jukebox_timer); this.oa_jukebox_timer = null }
     this.oa_jukebox_shuffle = shuffle
     if (shuffle == true) { this.jukebox_shuffle(); }
@@ -493,14 +498,15 @@ class OverAudio extends OverPhBase {
   jukebox_pause(duration=this.oa_jukebox_fade_duration) {
     if (this.oa_jukebox_playing == true) {
       this.sound_fadeout(this.jukebox_current().key,duration,true)
+      this.oa_jukebox_playing = false
     }
   }
 
   jukebox_resume(duration=this.oa_jukebox_fade_duration) {
-//    if (this.oa_jukebox_playing == true) {
-console.log('Resume...')
+    if (this.oa_jukebox_playing != true) {
       this.jukebox_play_key(this.jukebox_current().key,duration)
-//    }
+      this.oa_jukebox_playing = true
+    }
   }
 
   jukebox_update_play() {
@@ -564,8 +570,6 @@ console.log('Resume...')
     }
 
     if (this.oa_jukebox_play_list.length == 0) { this.jukebox_update_play() }
-// console.log(this.oa_jukebox_playing,this.oa_jukebox_playing_key)
-
     if ((this.oa_jukebox_playing == true) && (this.oa_jukebox_playing_key != null) && (key != this.oa_jukebox_playing_key)) {
       if (this.oa_jukebox_timer) { 
         clearTimeout(this.oa_jukebox_timer)
@@ -587,7 +591,6 @@ console.log('Resume...')
       //     this.jukebox_play_next()
       //   },[],this)
       this.oa_jukebox_timer = setTimeout(function(){ 
-        console.log('go!'); 
         this.jukebox_play_next()
       }.bind(this), adv_delay)
     }
