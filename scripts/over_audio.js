@@ -13,7 +13,6 @@ See README
 ===========================================================================*/
 // TODO:
 //
-var version = '0.1.2'
 class OverAudio extends OverPhBase {
   constructor (config={},ph_config={},engine=null) {
     let temp_config = {
@@ -27,6 +26,7 @@ class OverAudio extends OverPhBase {
       ...config
     }
     super(temp_config); //,overmaster);
+    this.version = '0.1.2'
     this.audio_engine = this
     this.sound = this.engine.sound
     this.sound.pauseOnBlur = this.config.pause_on_blur;
@@ -253,7 +253,6 @@ class OverAudio extends OverPhBase {
         callbackScope: this,
         onComplete: function (tw,targets){
           let k = targets[0].key
-          document.title = Date();
           // console.log('Pause: ' + pause) 
           if (pause == true) { this.sound_pause(k) }
           else { this.sound_stop(k) }
@@ -312,7 +311,7 @@ class OverAudio extends OverPhBase {
         }.bind(this));
       }
     }
-    as.on('complete', function() { document.title = performance.now()  })
+    // as.on('complete', function() { document.title = performance.now()  })
     as.play();
   }
 
@@ -422,7 +421,6 @@ class OverAudio extends OverPhBase {
       bs._counter += 1
       let counter_left = bs._count - bs._counter
       // console.log('complete!',Date())
-      document.title = performance.now()
       if (bs._forever == true) {
         setTimeout(function() {
         // console.log('timeout complete!',Date())
@@ -454,8 +452,9 @@ class OverAudio extends OverPhBase {
   // Jukebox Methods
   //===============================================    
   jukebox_sound_add(key) {
-    if (this.oa_jukebox_master_list.includes(k)) { break; }    
-    this.oa_jukebox_master_list.push(key)
+    if (!this.oa_jukebox_master_list.includes(key)) {
+      this.oa_jukebox_master_list.push(key)
+    }
   }
 
   jukebox_sound_remove(key) {
@@ -477,13 +476,12 @@ class OverAudio extends OverPhBase {
   }
 
   jukebox_play(shuffle=false) {
-    if (this.oa_jukebox_playing = true) { return true; }
+    if (this.oa_jukebox_playing == true) { return true; }
 
     if (this.oa_jukebox_timer) { clearTimeout(this.oa_jukebox_timer); this.oa_jukebox_timer = null }
     this.oa_jukebox_shuffle = shuffle
     if (shuffle == true) { this.jukebox_shuffle(); }
     this.jukebox_play_next()
-    this.oa_jukebox_playing = true
   }
 
   jukebox_overplay(key,duration=this.oa_jukebox_fade_duration) {
@@ -594,6 +592,7 @@ class OverAudio extends OverPhBase {
         this.jukebox_play_next()
       }.bind(this), adv_delay)
     }
+    this.oa_jukebox_playing = true
   }
 
   jukebox_play_next() {
