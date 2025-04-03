@@ -26,7 +26,7 @@ class OverAudio extends OverPhBase {
       ...config
     }
     super(temp_config); //,overmaster);
-    this.version = '0.1.2'
+    this.version = '0.1.3'
     this.audio_engine = this
     this.sound = this.engine.sound
     this.sound.pauseOnBlur = this.config.pause_on_blur;
