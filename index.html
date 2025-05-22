@@ -86,9 +86,11 @@
       { 
         'Snd Single': 'demos.simple_single()', 
         'Snd Overlay': 'demos.simple_overlay()',
+        'Snd Over Max': 'demos.simple_overlay_max()',
+        'Snd Skip': 'demos.simple_skip()',
         'Snd Loop': 'demos.simple_loop()',
         '5 count loop': 'demos.count_loop()',
-        'Skip Forward': 'demos.simple_skip()',
+        'Seek Forward': 'demos.simple_seek()',
         'Random x3': 'demos.bank_random_3()',
         'Random Loop': 'demos.bank_random()',
         // 'Stack Queue': 'window.odemo_growler.thinking("I am a different kind of growl.")',
@@ -118,7 +120,17 @@
     simple_overlay: ()=> { 
       odemo_growler.clearGrowls() 
       odemo_growler.info("<br><li>Clicking repeatedly starts a new sound over the previous instances.<li>variance: 100") 
-      ob.sound_play('bell',{ clone: true, variance: 100 })
+      ob.sound_play('bell',{ retrigger: 'clone', variance: 100 })
+    },
+    simple_overlay_max: ()=> { 
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Clicking repeatedly starts a new sound over the previous instances up to a MAX # of concurrent instances of the sound.  New instances above MAX can begin after old ones complete. Click more than three times.<li>variance: 100") 
+      ob.sound_play('bell',{ retrigger: 'clone', clone_max:3, variance: 100 })
+    },
+    simple_skip: ()=> { 
+      odemo_growler.clearGrowls() 
+      odemo_growler.info("<br><li>Only once instance can play and it will play to end before another play can be triggered (skips play if playing...).<li>variance: 100") 
+      ob.sound_play('bell',{ retrigger: 'skip', variance: 100 })
     },
     simple_loop: ()=> {
       odemo_growler.clearGrowls() 
@@ -130,7 +142,7 @@
       odemo_growler.info("<br><li>Click play on loop for 5 times.<li>Play count will calculate variance each play back.<li>Click again, stops.<li>variance:600, retrigger:'stop', count:5") 
       ob.sound_play('bampf',{ variance: 600, retrigger: 'stop', count: 5 })
     },
-    simple_skip: ()=> {
+    simple_seek: ()=> {
       odemo_growler.clearGrowls() 
       odemo_growler.info(`<br>
         <li>Clicks seek to the next 5 seconds of song (repeats after end).

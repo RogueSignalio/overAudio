@@ -153,6 +153,9 @@ class OverAudio extends OverPhBase {
     // this.scenes = []
     // this.videos = []
     this.sound.stopAll();
+    this.sound.sounds.forEach((s) => {
+      if (s.rs_clone == true) { s.destroy() }
+    })
     this.jukebox_stop();
   }
 
@@ -188,6 +191,7 @@ class OverAudio extends OverPhBase {
     let sound = this.sound.add(key)
     sound.options = options
     sound.fading = 0
+    sound.rs_clone = false
     sound.fader = null
 // console.log(sound)
     this.oa_sounds[key] = { key: key, sound: sound }
@@ -199,6 +203,18 @@ class OverAudio extends OverPhBase {
   }
   sound_data(key) {
     return this.oa_sounds[key]
+  }
+
+  sound_instance_count(key) {
+    let count = this.audio_scene().sound.getAll(key).length
+    // console.log(count)
+    return count
+  }
+
+  sound_instance_cleanup(key) {
+    for (let i = (this.sound_instance_count() - 1); i > 1; i--) {
+      this.audio_scene().sound.getAll(key)[i].destroy
+    }
   }
 
   sound_options(key,options=null) {
@@ -270,8 +286,12 @@ class OverAudio extends OverPhBase {
       ...options,
       ...as.options
     }
-    if (c_options.clone || (c_options.retrigger == 'clone')) { 
-      as = this.audio_scene().sound.add(key) 
+    if (c_options.retrigger == 'clone') { 
+      if (c_options.clone_max && this.sound_instance_count(key) > c_options.clone_max) { return }
+      as = this.audio_scene().sound.add(key)
+      as.rs_clone = true
+    } else if ((c_options.retrigger == 'skip') && (as.isPlaying)) {
+      return
     } else if ((c_options.retrigger == 'stop') && (as.isPlaying)) {
       this.sound_stop(key)
       return
@@ -299,19 +319,30 @@ class OverAudio extends OverPhBase {
     if (c_options.loop != null) {
       as.setLoop(c_options.loop)
     }
-    else if (c_options.count != null) {
+    else if (c_options.loop_count != null) {
       as.setLoop(false)
       if (!c_options.counter) {
         c_options.counter = 1
       }
-      if (c_options.counter < c_options.count) {
+      if (c_options.counter < c_options.loop_count) {
         as.once("complete", function (a) { 
           c_options.counter += 1
           this.sound_play(a.key,c_options); 
         }.bind(this));
+      } else {
+        if (as.rs_clone == true ) {
+          // console.log(`Destroy ${key}`)
+          as.destroy()
+        }
+      }
+    } else {
+      if (as.rs_clone == true ) {
+        as.once("complete", function (a) { 
+          // console.log(`Destroy ${key}`)
+          a.destroy()
+        }.bind(this));
       }
     }
-    // as.on('complete', function() { document.title = performance.now()  })
     as.play();
   }
 
