@@ -167,8 +167,10 @@ class OverAudio extends OverPhBase {
   }
 
   sound_queue_load(callback=()=>{}) {
-    this.audio_scene().load.start();
     this.audio_scene().load.once('complete',callback.bind(this))
+    // console.log(this.audio_scene().load.isReady())
+    this.audio_scene().load.start();
+    // console.log(this.audio_scene().load.isLoading())
   }
 
   sound_ready(key) {
@@ -198,6 +200,9 @@ class OverAudio extends OverPhBase {
     this.bank_add(bank,this.sound_data(key))
   }
 
+  sound_objects(key) {
+    return this.audio_scene().sound.getAll(key)
+  }
   sound_object(key) {
     return this.oa_sounds[key].sound
   }
@@ -287,20 +292,20 @@ class OverAudio extends OverPhBase {
       ...as.options
     }
     if (c_options.retrigger == 'clone') { 
-      if (c_options.clone_max && this.sound_instance_count(key) > c_options.clone_max) { return }
+      if (c_options.clone_max && this.sound_instance_count(key) > c_options.clone_max) { return null }
       as = this.audio_scene().sound.add(key)
       as.rs_clone = true
     } else if ((c_options.retrigger == 'skip') && (as.isPlaying)) {
-      return
+      return as
     } else if ((c_options.retrigger == 'stop') && (as.isPlaying)) {
       this.sound_stop(key)
-      return
+      return as
     } else if ((c_options.retrigger == 'seek') && (as.isPlaying)) {
       as.setSeek(c_options.seek_to)
-      return
+      return as
     } else if (c_options.marker) {
       as.play(c_options.marker)
-      return
+      return as
     }
 
     if (c_options.detune != null) {
@@ -319,12 +324,12 @@ class OverAudio extends OverPhBase {
     if (c_options.loop != null) {
       as.setLoop(c_options.loop)
     }
-    else if (c_options.loop_count != null) {
+    else if (c_options.loops != null) {
       as.setLoop(false)
       if (!c_options.counter) {
         c_options.counter = 1
       }
-      if (c_options.counter < c_options.loop_count) {
+      if (c_options.counter < c_options.loops) {
         as.once("complete", function (a) { 
           c_options.counter += 1
           this.sound_play(a.key,c_options); 
@@ -344,23 +349,25 @@ class OverAudio extends OverPhBase {
       }
     }
     as.play();
+    return as
   }
 
   sound_stop(key) {
-    let as = this.sound_object(key)
-    if (!as) { return null }
-    as.removeAllListeners();
-    as.stop()
+    this.sound_objects(key).forEach((as)=>{
+      as.removeAllListeners();
+      as.stop()
+    })
+    // if (!as) { return null }
   }
 
   sound_pause(key) {
-    let as = this.sound_object(key)
+    let as = this.sound_objects(key)
     if (!as) { return null }
     as.pause()
   }
 
   sound_resume(key) {
-    let as = this.sound_object(key)
+    let as = this.sound_objects(key)
     if (!as) { return null }
     as.resume()
   }
@@ -604,17 +611,17 @@ class OverAudio extends OverPhBase {
         clearTimeout(this.oa_jukebox_timer)
         // this.delayedClear(this.oa_jukebox_timer) 
       }
-      console.log('fade out: '+ this.oa_jukebox_playing_key)
+      //console.log('fade out: '+ this.oa_jukebox_playing_key)
       this.sound_fadeout(this.oa_jukebox_playing_key,n_duration,0,pause)
     }
-    console.log('fade in: '+ key)
+    //console.log('fade in: '+ key)
     this.sound_fadein(key,n_duration,n_duration/4)
 
     this.oa_jukebox_playing_key = key
     if (advance == true) {
       let snd = this.sound_object(key)
       let adv_delay = ((snd.duration - snd.seek) * 1000) - adv_duration
-      console.log('advance: '+ [snd.duration,snd.seek,adv_duration,adv_delay].join(' , '))
+      //console.log('advance: '+ [snd.duration,snd.seek,adv_duration,adv_delay].join(' , '))
       // this.oa_jukebox_timer = this.delayedCall(adv_delay,function(){ 
       //     console.log('go!'); 
       //     this.jukebox_play_next()
@@ -651,7 +658,7 @@ class OverAudio extends OverPhBase {
   }
 
   jukebox_bank_add(key) {
-    console.log(key)
+    //console.log(key)
     Object.entries(this.bank_sounds(key)).forEach(([k, v]) => { 
       this.jukebox_sound_add(k)
     })

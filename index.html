@@ -140,7 +140,7 @@
     count_loop: ()=> {
       odemo_growler.clearGrowls() 
       odemo_growler.info("<br><li>Click play on loop for 5 times.<li>Play count will calculate variance each play back.<li>Click again, stops.<li>variance:600, retrigger:'stop', count:5") 
-      ob.sound_play('bampf',{ variance: 600, retrigger: 'stop', count: 5 })
+      ob.sound_play('bampf',{ variance: 600, retrigger: 'stop', loops: 5 })
     },
     simple_seek: ()=> {
       odemo_growler.clearGrowls() 
