@@ -19,15 +19,30 @@ class OverAudio extends OverPhBase {
       audio_on: true,
       volume: 0.5,
       preload: {},
-      pause_on_blur: true,
+      pause_on_blur: false,
       scene_name: 'oaudio_scene',
       audio_path: 'assets/audio/',
       after_init: ()=>{},
       ...config
     }
-    super(temp_config); //,overmaster);
+    let conf = {
+      type: Phaser.HEADLESS, //Phaser.AUTO,
+      width: 0, 
+      height: 0, 
+      transparent: true,
+      canvasStyle: "z-index:-10000;visibility:hidden;",
+      fps: {
+        target: 5, 
+        forceSetTimeOut: true,
+      },
+      ...ph_config
+    }
+    // this.engine = engine
+    if (!engine) engine = new Phaser.Game(conf);
+    super(temp_config,ph_config,engine); //,overmaster);
     this.version = '0.1.3'
     this.audio_engine = this
+    // this.audio_engine.sound.pauseOnBlur = false
     this.sound = this.engine.sound
     this.sound.pauseOnBlur = this.config.pause_on_blur;
     this.oa_audio_scene = null

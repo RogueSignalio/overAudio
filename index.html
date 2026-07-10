@@ -8,14 +8,11 @@
     <link rel="icon" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/assets/favicon.png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase/css/over_demo.min.css" id="demo_style">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.85.0/phaser.min.js" crossorigin="anonymous"></script>
-<!--     <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/turuslan/HackTimer@latest/HackTimerWorker.min.js"></script>
- -->
-    <!-- <script src="https://cdn.jsdelivr.net/gh/myonov/momentum@latest/momentum.js"></script>     -->
-<!--     <script src="scripts/plugins/momentum.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lemonadejs/dist/lemonade.min.js"></script>
- -->    
     <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overGrowl@latest/over_growl.min.js"></script>
+<!--     <script src="../overBase/scripts/over_demo.js"></script>
+    <script src="../overBase/scripts/over_base.js"></script>
+    <script src="../overBase/scripts/over_ph_base.js"></script>
+ -->
     <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_demo.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_base.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/RogueSignalio/overBase@latest/scripts/over_ph_base.min.js"></script>
@@ -29,10 +26,12 @@
 <script>  
   window.onload = function() {
     window.ob = new OverAudio({
-      width: 1 ,
-      height: 1,
-      background: '0xFFFF00',
-      transparent: false,
+      // width: 1 ,
+      // height: 1,
+      // background: '0xFFFF00',
+      // transparent: false,
+      // type: Phaser.HEADLESS,
+
       preload: {
         'cranker': 'cranker.mp3',
         'bampf': ['bampf.mp3','main'],
@@ -67,13 +66,14 @@
 
 
   function load_demo() {
-    over_demo_panel('overAudio',0.1,'overAudio',
+    over_demo_panel('overAudio','0.1.X','overAudio',
       [
         'overAudio provides a consolidated audio playback library for scripts based on PhaserJS v3.8+.',
         'Simple interface to audio via tags for easy access for playback.',
         'Tags can interrupt/override playback or can trigger a new audio instance (overlapping sounds).',
         'Supports named channels, which can act as queues or stacks.',
         'Supports a background Jukebox option to provide endless play from playlist.',
+        'Default mode is to play music, even in a blurred window or tab.',
         'Jukebox can also support interrupt and resume after interrupt audio plays.',
         'Seeking, sub loops, and more features supported.',
         'Built-in drum pad plugin.',
