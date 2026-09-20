@@ -193,7 +193,9 @@ class OverAudio extends OverPhBase {
   }
 
   sound_load(key,file,bank='main',options={},start=true,callback=()=>{  }) {
-    if (this.oa_sounds[key]) { return }
+    if (this.oa_sounds[key]) {
+      callback.bind(this)()      
+    }
     var as = this.audio_scene()
     as.load.audio(key, this.config.audio_path + file); 
     as.load.once('complete', function (e) {
