@@ -40,7 +40,7 @@ class OverAudio extends OverPhBase {
     // this.engine = engine
     if (!engine) engine = new Phaser.Game(conf);
     super(temp_config,ph_config,engine); //,overmaster);
-    this.version = '0.1.3'
+    this.version = '0.1.7'
     this.audio_engine = this
     // this.audio_engine.sound.pauseOnBlur = false
     this.sound = this.engine.sound
@@ -154,8 +154,8 @@ class OverAudio extends OverPhBase {
     this.sound.setMute(false); 
     this.audio_restore_fix();
   }
-  audio_pause() { ob.sound.pauseAll() }
-  audio_resume() { ob.sound.resumeAll() }
+  audio_pause() { this.sound.pauseAll() }
+  audio_resume() { this.sound.resumeAll() }
 
   // Stop all FX & audio
   // A lil issue with timers firing etc do best to be safe
@@ -192,14 +192,16 @@ class OverAudio extends OverPhBase {
     return (this.oa_sounds[key] != undefined) ? true : false
   }
 
-  sound_load(key,file,bank='main',options={},start=true) {
+  sound_load(key,file,bank='main',options={},start=true,callback=()=>{ console.log('321'); }) {
     if (this.oa_sounds[key]) { return }
     var as = this.audio_scene()
     as.load.audio(key, this.config.audio_path + file); 
     as.load.once('complete', function (e) {
-      console.log(key + ' loaded.');
       this.sound_add(key,bank,options)
+      console.log(key + ' loaded.');
+      callback.bind(this)()
     }.bind(this));
+    // as.load.once('complete',)
     if (start == true) { as.load.start(); }
   }
 
@@ -376,15 +378,17 @@ class OverAudio extends OverPhBase {
   }
 
   sound_pause(key) {
-    let as = this.sound_objects(key)
-    if (!as) { return null }
-    as.pause()
+    // let as = this.sound_objects(key)
+    // if (!as) { return null }
+    this.sound_objects(key).forEach((as)=>{
+      as.pause()
+    })
   }
 
   sound_resume(key) {
-    let as = this.sound_objects(key)
-    if (!as) { return null }
-    as.resume()
+    this.sound_objects(key).forEach((as)=>{
+      as.resume()
+    })
   }
 
   sound_play_for(key) { }
@@ -429,9 +433,17 @@ class OverAudio extends OverPhBase {
     if (!bs) { return {} }
     let bss = []
     Object.entries(bs.sounds).forEach(([k, v]) => { 
-      bss << k
+      bss.push(k)
     })
     return bss
+  }
+
+  bank_sound_count(key) {
+    this.bank_sound_list(key).length
+  }
+
+  bank_key_helper(key) {
+    return `${key}_${this.bank_sound_list(key).length + 1}`
   }
 
   bank_random_sound(key,not_key=null) {
@@ -542,7 +554,9 @@ class OverAudio extends OverPhBase {
 //    this.jukebox_pause()
     this.jukebox_play_key(key,duration,false,true)
     this.oa_jukebox_timer = setTimeout(function(){ 
-      this.jukebox_resume([duration,this.oa_jukebox_fade_duration])
+      // this.jukebox_resume(duration)
+      this.jukebox_play_key(this.jukebox_current().key,duration)
+      this.oa_jukebox_playing = true
     }.bind(this), (this.sound_object(key).duration * 1000) - duration)
   }
 
